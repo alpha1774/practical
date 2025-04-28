@@ -1,92 +1,85 @@
 #include <iostream>
-#include <cstring>
 using namespace std;
 
-const int MAX_CITIES = 100;
+int Adj_Matrix[10][10];
 
-struct Flight {
-    string source;
-    string destination;
-    int cost;
-};
-
-class Graph {
-public:
-    int adjList[MAX_CITIES][MAX_CITIES];
-    int numCities;
-    Graph() {
-        numCities = 0;
-        memset(adjList, 0, sizeof(adjList));
-    }
-    void addFlight(Flight flight) {
-        int sourceIndex = getCityIndex(flight.source);
-        int destIndex = getCityIndex(flight.destination);
-        adjList[sourceIndex][destIndex] = flight.cost;
-    }
-    // Check if the graph is connected using BFS
-    bool isConnected() {
-        bool visited[MAX_CITIES];
-        memset(visited, false, sizeof(visited));
-        // Start BFS from any vertex
-        int start = 0;
-        visited[start] = true;
-        for (int i = 0; i < numCities; i++) {
-            if (adjList[start][i] > 0 && !visited[i]) {
-                visited[i] = true;
-            }
+void DFS(int current, bool visited[], int CityNo) {
+    visited[current] = true;
+    for (int i = 0; i < CityNo; i++) {
+        if (Adj_Matrix[current][i] != 0 && !visited[i]) {
+            DFS(i, visited, CityNo);
         }
-        for (int i = 1; i < numCities; i++) {
-            if (!visited[i]) {
-                return false;
-            }
-        }
-        return true;
     }
-private:
-    int getCityIndex(string city) {
-        for (int i = 0; i < numCities; i++) {
-            if (city == cities[i]) {
-                return i;
-            }
-        }
-        cities[numCities] = city;
-        numCities++;
-        return numCities - 1;
-    }
-    // Array to store names of cities
-    string cities[MAX_CITIES];
-};
+}
 
 int main() {
-    Graph g;
-    int choice;
-    Flight flight;
-    do {
-        cout << "\n1. Add a flight\n2. Check if graph is connected\n3. Exit\nEnter choice: ";
-        cin >> choice;
-        switch (choice) {
-            case 1:
-                cout << "\nEnter source city: ";
-                cin >> flight.source;
-                cout << "Enter destination city: ";
-                cin >> flight.destination;
-                cout << "Enter cost of flight: ";
-                cin >> flight.cost;
-                g.addFlight(flight);
-                break;
-            case 2:
-                if (g.isConnected())
-                    cout << "\nGraph is connected";
-                else
-                    cout << "\nGraph is not connected";
-                break;
-            case 3:
-                cout << "\nExiting...";
-                break;
-            default:
-                cout << "\nInvalid choice";
-                break;
+    int CityNo;
+    cout << "Enter the no. of Cities (max 10): ";
+    cin >> CityNo;
+
+    if (CityNo > 10 || CityNo <= 0) {
+        cout << "Invalid number of cities. Please enter a number between 1 and 10." << endl;
+        return 1;
+    }
+
+    string CityName[CityNo];
+
+    for (int i = 0; i < CityNo; i++) {
+        cout << "Enter name of city no. " << i + 1 << ": ";
+        cin >> CityName[i];
+    }
+
+    for (int i = 0; i < CityNo; i++) {
+        for (int j = 0; j < CityNo; j++) {
+            Adj_Matrix[i][j] = 0;
         }
-    } while (choice != 3);
+    }
+
+    cout << "Enter the Time required to fly between Cities in hrs : " << endl;
+
+    for (int i = 0; i < CityNo; i++) {
+        for (int j = i + 1; j < CityNo; j++) {
+            int time;
+            cout << CityName[i] << " and " << CityName[j] << " = ";
+            cin >> time;
+            Adj_Matrix[i][j] = time;
+            Adj_Matrix[j][i] = time;
+        }
+    }
+
+    cout << "\nAdjacency Matrix:\n";
+    cout << "\t";
+    for (int i = 0; i < CityNo; i++) {
+        cout << CityName[i] << "\t";
+    }
+    cout << endl;
+
+    for (int i = 0; i < CityNo; i++) {
+        cout << CityName[i] << "\t";
+        for (int j = 0; j < CityNo; j++) {
+            cout << Adj_Matrix[i][j] << "\t";
+        }
+        cout << endl;
+    }
+
+    bool visited[10] = {false};
+
+    // Start DFS from city 0
+    DFS(0, visited, CityNo);
+
+    bool isConnected = true;
+    for (int i = 0; i < CityNo; i++) {
+        if (!visited[i]) {
+            isConnected = false;
+            break;
+        }
+    }
+
+    if (isConnected) {
+        cout << "\nGraph is connected." << endl;
+    } else {
+        cout << "\nGraph is not connected." << endl;
+    }
+
     return 0;
 }
