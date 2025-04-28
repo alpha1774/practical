@@ -4,8 +4,48 @@ using namespace std;
 
 int cost[10][10], i, j, k, n, m;
 int qu[10], front = 0, rear = 0, v;
-int visited[10], visit[10];
-int stk[10], top = 0, visit1[10], visited1[10];
+int visited[10];  // Only use one visited array for BFS and DFS
+int stk[10], top = 0;
+
+void BFS(int start) {
+    for (int i = 0; i < n; i++) visited[i] = 0;  // Reset visited for BFS
+    cout << "The BFS of the Graph is: \n";
+    cout << start << " ";
+    visited[start] = 1;
+    qu[rear++] = start;
+    
+    while (front != rear) {
+        int v = qu[front++];
+        for (int j = 0; j < n; j++) {
+            if (cost[v][j] == 1 && visited[j] == 0) {
+                cout << j << " ";
+                visited[j] = 1;
+                qu[rear++] = j;
+            }
+        }
+    }
+    cout << endl;
+}
+
+void DFS(int start) {
+    for (int i = 0; i < n; i++) visited[i] = 0;  // Reset visited for DFS
+    cout << "The DFS of the Graph is: \n";
+    cout << start << " ";
+    visited[start] = 1;
+    stk[top++] = start;
+    
+    while (top > 0) {
+        int v = stk[--top];
+        for (int j = n - 1; j >= 0; j--) {  // Explore in reverse order for DFS
+            if (cost[v][j] == 1 && visited[j] == 0) {
+                cout << j << " ";
+                visited[j] = 1;
+                stk[top++] = j;
+            }
+        }
+    }
+    cout << endl;
+}
 
 int main() {
     cout << "Enter number of vertices: ";
@@ -22,8 +62,8 @@ int main() {
 
     // Read edges
     cout << "\nEDGES:\n";
-    for (k = 0; k <= m - 1; k++) {
-        cout << "Enter edge " << k << " (in the format: vertex1 vertex2): ";
+    for (k = 0; k < m; k++) {
+        cout << "Enter edge " << k + 1 << " (in the format: vertex1 vertex2): ";
         cin >> i >> j;
         cost[i][j] = 1;
         cost[j][i] = 1; // Because the graph is undirected
@@ -41,47 +81,12 @@ int main() {
     // BFS
     cout << "Enter initial vertex for BFS: ";
     cin >> v;
-    cout << "The BFS of the Graph is: \n";
-    cout << v << " ";
-    visited[v] = 1;
-    k = 0;
-    while (k < n) {
-        for (j = 0; j < n; j++) {
-            if (cost[v][j] != 0 && visited[j] != 1 && visit[j] != 1) {
-                visit[j] = 1;
-                qu[rear++] = j;
-            }
-        }
-        v = qu[front++];
-        cout << v << " ";
-        k++;
-        visit[v] = 0;
-        visited[v] = 1;
-    }
-    cout << endl;
+    BFS(v);
 
     // DFS
     cout << "Enter initial vertex for DFS: ";
     cin >> v;
-    cout << "The DFS of the Graph is: \n";
-    cout << v << " ";
-    visited1[v] = 1;
-    k = 0;
-    stk[top++] = v;
-    while (k < n) {
-        for (j = n - 1; j >= 0; j--) {
-            if (cost[v][j] != 0 && visited1[j] != 1 && visit1[j] != 1) {
-                visit1[j] = 1;
-                stk[top++] = j;
-            }
-        }
-        v = stk[--top];
-        cout << v << " ";
-        k++;
-        visit1[v] = 0;
-        visited1[v] = 1;
-    }
-    cout << endl;
+    DFS(v);
 
     return 0;
 }
