@@ -1,28 +1,22 @@
-#include<iostream>
+#include <iostream>
 using namespace std;
 
 class node {
 public:
+    int data;
     node* left;
     node* right;
-    int data;
 
     node(int val) {
         data = val;
         left = right = nullptr;
     }
-    friend class BST;
 };
 
 class BST {
-public:
+private:
     node* root;
 
-    BST() {
-        root = NULL;
-    }
-
-    // Insert method to insert nodes properly
     node* insert(node* n, int value) {
         if (n == nullptr) {
             return new node(value);
@@ -35,45 +29,27 @@ public:
         return n;
     }
 
-    // Main insert function that doesn't overwrite root
-    void insertValue(int value) {
-        root = insert(root, value); // Insert the value at the correct position
-    }
-
-    // In-order traversal
     void inorder(node* n) {
-        if (n == nullptr) return;
+        if (n == nullptr) {
+            return;
+        }
         inorder(n->left);
         cout << n->data << " ";
         inorder(n->right);
     }
 
-    // Display the tree using in-order traversal
-    void display() {
-        inorder(root);
-        cout << endl;
-    }
-
-    // Find the height (longest path) of the tree
     int longestPath(node* n) {
         if (n == nullptr) {
             return 0;
         }
-        int leftHeight = longestPath(n->left);
-        int rightHeight = longestPath(n->right);
-        return max(leftHeight, rightHeight) + 1;
+        int leftDepth = longestPath(n->left);
+        int rightDepth = longestPath(n->right);
+        return max(leftDepth, rightDepth) + 1;
     }
 
-    // Get the longest path (height) from root
-    int getLongestPath() {
-        return longestPath(root);
-    }
-
-    // Find the minimum value in the tree
-    int findMinValue(node* n) {
+    int findMin(node* n) {
         if (n == nullptr) {
-            cout << "Tree is empty!" << endl;
-            return -1;
+            return -1; // or throw exception
         }
         while (n->left != nullptr) {
             n = n->left;
@@ -81,27 +57,16 @@ public:
         return n->data;
     }
 
-    // Get the minimum value in the tree
-    int getMinValue() {
-        return findMinValue(root);
-    }
-
-    // Swap the left and right children of each node
     void swapChildren(node* n) {
-        if (n == nullptr) return;
-        node* temp = n->left;
-        n->left = n->right;
-        n->right = temp;
+        if (n == nullptr) {
+            return;
+        }
+        swap(n->left, n->right);
         swapChildren(n->left);
         swapChildren(n->right);
     }
 
-    // Swap children from root
-    void swapChildrenFromRoot() {
-        swapChildren(root);
-    }
-
-    // Search for a value in the tree
+    // ✅ Updated search function to work even after swapping (simple traversal)
     bool search(node* n, int value) {
         if (n == nullptr) {
             return false;
@@ -109,14 +74,36 @@ public:
         if (n->data == value) {
             return true;
         }
-        if (value < n->data) {
-            return search(n->left, value);
-        } else {
-            return search(n->right, value);
-        }
+        // Search both left and right subtrees
+        return search(n->left, value) || search(n->right, value);
     }
 
-    // Search for a value from root
+public:
+    BST() {
+        root = nullptr;
+    }
+
+    void insertValue(int value) {
+        root = insert(root, value);
+    }
+
+    void display() {
+        inorder(root);
+        cout << endl;
+    }
+
+    int longestPathFromRoot() {
+        return longestPath(root);
+    }
+
+    int findMinValue() {
+        return findMin(root);
+    }
+
+    void swapChildrenFromRoot() {
+        swapChildren(root);
+    }
+
     bool searchFromRoot(int value) {
         return search(root, value);
     }
@@ -124,23 +111,21 @@ public:
 
 int main() {
     BST tree;
-    int no, value;
+    int n, value;
 
     cout << "Enter number of nodes to insert into BST: ";
-    cin >> no;
-
+    cin >> n;
     cout << "Enter values to insert: ";
-    for (int i = 0; i < no; i++) {
+    for (int i = 0; i < n; i++) {
         cin >> value;
-        tree.insertValue(value); // Use insertValue to maintain the tree structure correctly
+        tree.insertValue(value);
     }
 
     cout << "BST in-order traversal: ";
     tree.display();
 
-    cout << "Longest path from root (height): " << tree.getLongestPath() << endl;
-
-    cout << "Minimum value in the tree: " << tree.getMinValue() << endl;
+    cout << "Longest path from root (height): " << tree.longestPathFromRoot() << endl;
+    cout << "Minimum value in the tree: " << tree.findMinValue() << endl;
 
     tree.swapChildrenFromRoot();
     cout << "BST after swapping left and right children: ";
